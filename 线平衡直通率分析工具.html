@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>制程工程师数字工具箱</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(90deg, #1a3a6c, #2c5282);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(90deg, #2c5282, #4299e1);
+            color: white;
+            padding: 18px 25px;
+        }
+        
+        .card-header h2 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h2 i {
+            margin-right: 12px;
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .input-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #4299e1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+        
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        button:hover {
+            background: #3182ce;
+        }
+        
+        .result-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #4299e1;
+        }
+        
+        .metric-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        .metric-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2b6cb0;
+        }
+        
+        .recommendation {
+            background: #fffaf0;
+            border-left: 4px solid #ecc94b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .data-table th {
+            background: #edf2f7;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            color: #e53e3e;
+            font-weight: 700;
+        }
+        
+        .priority-medium {
+            color: #dd6b20;
+            font-weight: 700;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #718096;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>制程工程师数字工具箱</h1>
+            <p>智能制造优化解决方案 - 将IT技能应用于工艺改进</p>
+        </header>
+        
+        <div class="card-container">
+            <!-- 生产线平衡分析工具 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i>📊</i> 生产线平衡分析工具</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-section">
+                        <h3>生产线配置</h3>
+                        <div class="input-group">
+                            <label for="workstation-name">工位名称</label>
+                            <input type="text" id="workstation-name" placeholder="例如：扫描工位">
+                        </div>
+                        <div class="input-group">
+                            <label for="workstation-time">工时（秒）</label>
+                            <input type="number" id="workstation-time" placeholder="例如：120">
+                        </div>
+                        <button id="add-workstation"><i>➕</i> 添加工位</button>
+                        <button id="calculate-balance" style="background: #38a169; margin-left: 10px;"><i>📈</i> 计算平衡率</button>
+                        <button id="reset-balance" style="background: #e53e3e; margin-left: 10px;"><i>🔄</i> 重置</button>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>分析结果</h3>
+                        <div class="metrics">
+                            <div class="metric-card">
+                                <h3>平均工时</h3>
+                                <div class="value" id="avg-time">0.0s</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>瓶颈工时</h3>
+                                <div class="value" id="max-time">0.0s</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>平衡率</h3>
+                                <div class="value" id="balance-rate">0.0%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="balance-chart"></canvas>
+                        </div>
+                        
+                        <div id="recommendation" class="recommendation">
+                            <p>添加生产线工位数据并点击"计算平衡率"获取优化建议</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 直通率分析工具 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i>📈</i> 直通率分析工具</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-section">
+                        <h3>生产线数据</h3>
+                        <div class="input-group">
+                            <label for="process-name">工序名称</label>
+                            <input type="text" id="process-name" placeholder="例如：老化测试">
+                        </div>
+                        <div class="input-group">
+                            <label for="yield-values">每日直通率（%，用逗号分隔）</label>
+                            <input type="text" id="yield-values" placeholder="例如：95.1,94.8,96.0,93.2,92.5,85.0,94.7">
+                        </div>
+                        <button id="add-process"><i>➕</i> 添加工序</button>
+                        <button id="analyze-yield" style="background: #38a169;"><i>🔍</i> 分析直通率</button>
+                        <button id="reset-yield" style="background: #e53e3e; margin-left: 10px;"><i>🔄</i> 重置</button>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>分析报告</h3>
+                        <div class="metrics">
+                            <div class="metric-card">
+                                <h3>平均直通率</h3>
+                                <div class="value" id="avg-yield">0.0%</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>最低直通率</h3>
+                                <div class="value" id="min-yield">0.0%</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>波动幅度</h3>
+                                <div class="value" id="yield-range">0.0%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="yield-chart"></canvas>
+                        </div>
+                        
+                        <h3 style="margin-top: 20px;">异常工序分析</h3>
+                        <table class="data-table" id="anomaly-table">
+                            <thead>
+                                <tr>
+                                    <th>工序</th>
+                                    <th>异常日期</th>
+                                    <th>波动贡献度</th>
+                                    <th>优先级</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据将通过JS填充 -->
+                            </tbody>
+                        </table>
+                        
+                        <div id="yield-recommendation" class="recommendation">
+                            <p>添加工序直通率数据并点击"分析直通率"获取改进建议</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 制程工程师数字工具箱 | 将IT技能应用于智能制造优化 | 基于HTML5/JavaScript开发</p>
+            <p>对应简历项目：存储产线优化（工时↓900s/直通率↑10%）</p>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化数据结构
+        let workstationData = [];
+        let processData = {};
+        let dates = ['2023-10-01', '2023-10-02', '2023-10-03', '2023-10-04', '2023-10-05', '2023-10-06', '2023-10-07'];
+        
+        // DOM元素引用
+        const balanceChartCtx = document.getElementById('balance-chart').getContext('2d');
+        const yieldChartCtx = document.getElementById('yield-chart').getContext('2d');
+        let balanceChart, yieldChart;
+        
+        // 添加工位
+        document.getElementById('add-workstation').addEventListener('click', function() {
+            const name = document.getElementById('workstation-name').value;
+            const time = parseFloat(document.getElementById('workstation-time').value);
+            
+            if (name && !isNaN(time) && time > 0) {
+                workstationData.push({ name, time });
+                document.getElementById('workstation-name').value = '';
+                document.getElementById('workstation-time').value = '';
+                updateWorkstationList();
+            } else {
+                alert('请输入有效的工位名称和工时！');
+            }
+        });
+        
+        // 添加工序
+        document.getElementById('add-process').addEventListener('click', function() {
+            const name = document.getElementById('process-name').value;
+            const values = document.getElementById('yield-values').value;
+            
+            if (name && values) {
+                const yieldArray = values.split(',').map(val => parseFloat(val.trim()));
+                if (yieldArray.length === 7 && yieldArray.every(val => !isNaN(val))) {
+                    processData[name] = yieldArray;
+                    document.getElementById('process-name').value = '';
+                    document.getElementById('yield-values').value = '';
+                    updateProcessList();
+                } else {
+                    alert('请输入7个有效的直通率数值，用逗号分隔！');
+                }
+            } else {
+                alert('请输入工序名称和直通率数据！');
+            }
+        });
+        
+        // 计算生产线平衡
+        document.getElementById('calculate-balance').addEventListener('click', function() {
+            if (workstationData.length < 2) {
+                alert('请至少添加两个工位！');
+                return;
+            }
+            
+            calculateBalance();
+        });
+        
+        // 分析直通率
+        document.getElementById('analyze-yield').addEventListener('click', function() {
+            if (Object.keys(processData).length === 0) {
+                alert('请至少添加一个工序！');
+                return;
+            }
+            
+            analyzeYield();
+        });
+        
+        // 重置生产线平衡工具
+        document.getElementById('reset-balance').addEventListener('click', function() {
+            workstationData = [];
+            updateWorkstationList();
+            document.getElementById('avg-time').textContent = '0.0s';
+            document.getElementById('max-time').textContent = '0.0s';
+            document.getElementById('balance-rate').textContent = '0.0%';
+            
+            if (balanceChart) {
+                balanceChart.destroy();
+            }
+            
+            document.getElementById('recommendation').innerHTML = '<p>添加生产线工位数据并点击"计算平衡率"获取优化建议</p>';
+        });
+        
+        // 重置直通率工具
+        document.getElementById('reset-yield').addEventListener('click', function() {
+            processData = {};
+            updateProcessList();
+            document.getElementById('avg-yield').textContent = '0.0%';
+            document.getElementById('min-yield').textContent = '0.0%';
+            document.getElementById('yield-range').textContent = '0.0%';
+            
+            if (yieldChart) {
+                yieldChart.destroy();
+            }
+            
+            document.getElementById('anomaly-table').querySelector('tbody').innerHTML = '';
+            document.getElementById('yield-recommendation').innerHTML = '<p>添加工序直通率数据并点击"分析直通率"获取改进建议</p>';
+        });
+        
+        // 更新工位列表显示
+        function updateWorkstationList() {
+            const resultSection = document.querySelector('.result-section:first-child');
+            let html = '<h4>当前工位配置：</h4><ul>';
+            
+            workstationData.forEach(ws => {
+                html += `<li><strong>${ws.name}</strong>: ${ws.time}秒</li>`;
+            });
+            
+            html += '</ul>';
+            
+            if (!document.getElementById('workstation-list')) {
+                const div = document.createElement('div');
+                div.id = 'workstation-list';
+                div.innerHTML = html;
+                resultSection.insertBefore(div, resultSection.firstChild);
+            } else {
+                document.getElementById('workstation-list').innerHTML = html;
+            }
+        }
+        
+        // 更新工序列表显示
+        function updateProcessList() {
+            const resultSection = document.querySelectorAll('.result-section')[1];
+            let html = '<h4>当前工序配置：</h4><ul>';
+            
+            for (const [name, values] of Object.entries(processData)) {
+                html += `<li><strong>${name}</strong>: ${values.join('%, ')}%</li>`;
+            }
+            
+            html += '</ul>';
+            
+            if (!document.getElementById('process-list')) {
+                const div = document.createElement('div');
+                div.id = 'process-list';
+                div.innerHTML = html;
+                resultSection.insertBefore(div, resultSection.firstChild);
+            } else {
+                document.getElementById('process-list').innerHTML = html;
+            }
+        }
+        
+        // 计算生产线平衡
+        function calculateBalance() {
+            const times = workstationData.map(ws => ws.time);
+            const totalTime = times.reduce((sum, time) => sum + time, 0);
+            const avgTime = totalTime / workstationData.length;
+            const maxTime = Math.max(...times);
+            const balanceRate = (totalTime / (maxTime * workstationData.length)) * 100;
+            
+            // 更新指标显示
+            document.getElementById('avg-time').textContent = avgTime.toFixed(1) + 's';
+            document.getElementById('max-time').textContent = maxTime.toFixed(1) + 's';
+            document.getElementById('balance-rate').textContent = balanceRate.toFixed(1) + '%';
+            
+            // 创建图表
+            createBalanceChart();
+            
+            // 生成建议
+            let recommendation = '';
+            if (balanceRate < 80) {
+                const bottleneck = workstationData.find(ws => ws.time === maxTime);
+                recommendation = `<p><strong>优化建议：</strong>瓶颈工位 <strong>${bottleneck.name}</strong> 耗时过长，建议采取以下措施：</p>
+                <ul>
+                    <li>自动化改造（如简历中的硬盘自动锁附设备）</li>
+                    <li>工装优化提升操作效率</li>
+                    <li>应用ECRS原则重新分配工作内容</li>
+                </ul>
+                <p>目标：将平衡率提升至85%以上</p>`;
+            } else {
+                recommendation = `<p><strong>产线平衡良好！</strong> 平衡率 ${balanceRate.toFixed(1)}% 已达到行业优秀水平。</p>
+                <p>建议持续监控关键工位，应用精益生产工具保持优化。</p>`;
+            }
+            
+            document.getElementById('recommendation').innerHTML = recommendation;
+        }
+        
+        // 创建生产线平衡图表
+        function createBalanceChart() {
+            const labels = workstationData.map(ws => ws.name);
+            const data = workstationData.map(ws => ws.time);
+            const avgTime = data.reduce((sum, time) => sum + time, 0) / data.length;
+            
+            if (balanceChart) {
+                balanceChart.destroy();
+            }
+            
+            balanceChart = new Chart(balanceChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '工时 (秒)',
+                        data: data,
+                        backgroundColor: data.map(time => 
+                            time === Math.max(...data) ? 'rgba(220, 38, 38, 0.7)' : 'rgba(66, 153, 225, 0.7)'
+                        ),
+                        borderColor: data.map(time => 
+                            time === Math.max(...data) ? 'rgb(220, 38, 38)' : 'rgb(66, 153, 225)'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '工时 (秒)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '生产线工位工时分析'
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: avgTime,
+                                    yMax: avgTime,
+                                    borderColor: 'rgb(56, 161, 105)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        display: true,
+                                        content: `平均工时: ${avgTime.toFixed(1)}s`,
+                                        position: 'right'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 分析直通率
+        function analyzeYield() {
+            // 计算整体直通率
+            const overallYield = [];
+            for (let i = 0; i < 7; i++) {
+                let dailyYield = 1;
+                for (const yields of Object.values(processData)) {
+                    dailyYield *= (yields[i] / 100);
+                }
+                overallYield.push(dailyYield * 100);
+            }
+            
+            // 计算指标
+            const allYields = Object.values(processData).flat();
+            const avgYield = allYields.reduce((sum, y) => sum + y, 0) / allYields.length;
+            const minYield = Math.min(...overallYield);
+            const yieldRange = Math.max(...overallYield) - minYield;
+            
+            document.getElementById('avg-yield').textContent = avgYield.toFixed(1) + '%';
+            document.getElementById('min-yield').textContent = minYield.toFixed(1) + '%';
+            document.getElementById('yield-range').textContent = yieldRange.toFixed(1) + '%';
+            
+            // 创建图表
+            createYieldChart(overallYield);
+            
+            // 分析异常
+            analyzeAnomalies(overallYield);
+        }
+        
+        // 创建直通率图表
+        function createYieldChart(overallYield) {
+            if (yieldChart) {
+                yieldChart.destroy();
+            }
+            
+            yieldChart = new Chart(yieldChartCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '整体直通率',
+                        data: overallYield,
+                        borderColor: 'rgb(66, 153, 225)',
+                        backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 80,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '直通率 (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '生产线整体直通率趋势'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 分析异常工序
+        function analyzeAnomalies(overallYield) {
+            const tableBody = document.getElementById('anomaly-table').querySelector('tbody');
+            tableBody.innerHTML = '';
+            
+            let mainIssue = '';
+            let mainIssuePriority = '';
+            let anomalyCount = 0;
+            
+            for (const [name, yields] of Object.entries(processData)) {
+                // 计算平均值和标准差
+                const avg = yields.reduce((sum, y) => sum + y, 0) / yields.length;
+                const stdDev = Math.sqrt(yields.reduce((sum, y) => sum + Math.pow(y - avg, 2), 0) / yields.length);
+                
+                // 找出异常日期
+                const anomalyDates = [];
+                const contributions = [];
+                
+                for (let i = 0; i < yields.length; i++) {
+                    if (yields[i] < avg - 1.5 * stdDev) {
+                        anomalyDates.push(dates[i]);
+                        
+                        // 计算贡献度
+                        const dailyYield = yields[i] / 100;
+                        const otherYield = overallYield[i] / dailyYield;
+                        const contribution = (overallYield[i] - otherYield) / overallYield[i] * 100;
+                        contributions.push(contribution);
+                    }
+                }
+                
+                if (anomalyDates.length > 0) {
+                    const maxContribution = Math.max(...contributions).toFixed(1);
+                    const priority = name.includes('老化') ? '高' : '中';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${name}</td>
+                        <td>${anomalyDates.join(', ')}</td>
+                        <td>${maxContribution}%</td>
+                        <td class="${priority === '高' ? 'priority-high' : 'priority-medium'}">${priority}</td>
+                    `;
+                    tableBody.appendChild(row);
+                    
+                    if (anomalyCount === 0 || maxContribution > mainIssuePriority) {
+                        mainIssue = name;
+                        mainIssuePriority = maxContribution;
+                    }
+                    
+                    anomalyCount++;
+                }
+            }
+            
+            // 生成建议
+            let recommendation = '';
+            if (anomalyCount > 0) {
+                recommendation = `<p><strong>主要问题在【${mainIssue}】工序</strong>（参考简历中老化链路项目解决方案）：</p>
+                <ul>
+                    <li>导入自动化点检工具，减少人工操作失误</li>
+                    <li>制定设备保养规范，建立预防性维护机制</li>
+                    <li>增加冒烟测试环节，提前拦截异常产品</li>
+                    <li>推动研发改善结构设计，减少撞件问题</li>
+                </ul>`;
+            } else {
+                recommendation = `<p><strong>生产线直通率稳定！</strong> 未检测到显著异常波动。</p>
+                <p>建议持续监控关键工序，应用SPC控制图保持过程稳定。</p>`;
+            }
+            
+            document.getElementById('yield-recommendation').innerHTML = recommendation;
+        }
+        
+        // 初始化示例数据
+        function initSampleData() {
+            // 生产线平衡示例数据
+            workstationData = [
+                { name: "扫描工位", time: 120 },
+                { name: "支架安装", time: 180 },
+                { name: "AGV周转", time: 90 },
+                { name: "视觉检测", time: 150 },
+                { name: "包装工位", time: 130 }
+            ];
+            
+            // 直通率示例数据
+            processData = {
+                "SMT工序": [99.2, 99.1, 98.9, 97.5, 99.0, 96.8, 99.1],
+                "AI工序": [98.5, 98.7, 98.6, 98.4, 98.3, 98.5, 98.4],
+                "老化测试": [95.1, 94.8, 96.0, 93.2, 92.5, 85.0, 94.7],
+                "包装工序": [99.8, 99.7, 99.9, 99.8, 99.6, 99.5, 99.7]
+            };
+            
+            updateWorkstationList();
+            updateProcessList();
+        }
+        
+        // 页面加载时初始化示例数据
+        window.addEventListener('load', initSampleData);
+    </script>
+</body>
+</html>
